@@ -8,16 +8,23 @@ const UploadForm = () => {
     tags: "",
     media: "",
     privacyStatus: "",
-    formData: new FormData(),
   });
 
-  console.log(values);
+  const [video, setVideo] = useState(undefined);
+  const [videoThumbnail, setVideoThumbnail] = useState(undefined);
 
-  const { title, description, tags, privacyStatus, formData } = values;
+  const { title, description, tags, privacyStatus } = values;
 
   const onSubmit = (event) => {
     event.preventDefault();
-    setValues({ ...values, error: "", loading: true });
+    const formData = new FormData();
+    formData.append("media", video);
+    formData.append("media", videoThumbnail);
+    formData.append("title", values.title);
+    formData.append("description", values.title);
+    formData.append("tags", values.tags);
+    formData.append("privacyStatus", values.privacyStatus);
+
     uploadVideo(formData).then((data) => {
       setValues({
         ...values,
@@ -29,22 +36,19 @@ const UploadForm = () => {
     });
   };
 
-  const handleChange = (name) => (event) => {
-    const value = name === "media" ? event.target.files[0] : event.target.value;
-    console.log(value);
-    formData.append("media", event.target.files[0]);
-    formData.set(name, value);
-    setValues({ ...values, [name]: value });
+  const handleChange = (event) => {
+    const value = event.target.value;
+    setValues({ ...values, [event.target.name]: value });
   };
 
-  // const successMessage = () => (
-  //   <div
-  //     className="alert alert-success mt-3"
-  //     style={{ display: success ? "" : "none" }}
-  //   >
-  //     <h4>video uploaded successfullly</h4>
-  //   </div>
-  // );
+  const handleChangeMedia = (event, name) => {
+    if (name === "thumbnail") {
+      setVideoThumbnail(event.target.files[0]);
+    } else {
+      setVideo(event.target.files[0]);
+    }
+  };
+
   return (
     <div
       style={{
@@ -60,21 +64,22 @@ const UploadForm = () => {
         <div className="form-group">
           <label className="btn btn-block btn-success">
             <input
-              onChange={handleChange("media")}
+              onChange={(event) => {
+                handleChangeMedia(event, "video");
+              }}
               type="file"
-              name="media"
               accept="video"
               placeholder="choose a file"
             />
           </label>
         </div>
-        <span>Add Thumbnail</span>
         <div className="form-group">
           <label className="btn btn-block btn-success">
             <input
-              onChange={handleChange("media")}
+              onChange={(event) => {
+                handleChangeMedia(event, "thumbnail");
+              }}
               type="file"
-              name="media"
               accept="image"
               placeholder="choose a file"
             />
@@ -82,37 +87,38 @@ const UploadForm = () => {
         </div>
         <div className="form-group">
           <input
-            name="media"
             className="form-control"
             placeholder="Title"
-            onChange={handleChange("title")}
+            onChange={handleChange}
             value={title}
+            name="title"
           />
         </div>
         <div className="form-group">
           <textarea
-            name="media"
             className="form-control"
             placeholder="Description"
-            onChange={handleChange("description")}
+            onChange={handleChange}
             value={description}
+            name="description"
           />
         </div>
         <div className="form-group">
           <input
-            name="media"
             className="form-control"
             placeholder="Tags"
-            onChange={handleChange("tags")}
+            onChange={handleChange}
             value={tags}
+            name="tags"
           />
         </div>
         <div className="form-group">
           <select
             className="form-control"
             placeholder="Privacy Status"
-            onChange={handleChange("privacyStatus")}
+            onChange={handleChange}
             value={privacyStatus}
+            name="privacyStatus"
           >
             <option>Select</option>
             <option>private</option>
